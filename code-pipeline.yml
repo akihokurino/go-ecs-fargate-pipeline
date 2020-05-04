@@ -154,6 +154,7 @@ Resources:
               Configuration:
                 ClusterName: !Sub ${PJPrefix}
                 ServiceName: !Sub ${PJPrefix}-${ServiceName}
+                # buildspec.ymlで指定しているartifactsのfile名と同じにする
                 FileName: imagedefinitions.json
               InputArtifacts:
                 - Name: BuildArtifact
@@ -216,6 +217,10 @@ Resources:
             Value: !Ref AWS::Region
           - Name: AWS_ACCOUNT_ID
             Value: !Ref AWS::AccountId
+          - Name: CONTAINER_NAME
+            Value: !Sub ${PJPrefix}-${ServiceName}
+          - Name: SERVICE_NAME
+            Value: !Sub ${ServiceName}
         PrivilegedMode: true
       Name: !Sub ${PJPrefix}-${ServiceName}
       ServiceRole: !GetAtt BuildExecutionRole.Arn
