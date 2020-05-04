@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Create ECR
+
+Parameters:
+  RepoName:
+    Type: String
+    Default: "env-echo"
+
+Resources:
+  # ------------------------------------------------------------#
+  #  ECR
+  # ------------------------------------------------------------#
+  ECRRepo:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Sub ${RepoName}

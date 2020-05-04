@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: ecs cluster
+
+Parameters:
+  PJPrefix:
+    Type: String
+    Default: "playground"
+
+Resources:
+  # ------------------------------------------------------------#
+  #  ECS Cluster
+  # ------------------------------------------------------------#
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub ${PJPrefix}
+
+Outputs:
+  ECSClusterName:
+    Value: !Ref ECSCluster
+    Export:
+      Name: !Sub ${PJPrefix}-ecs-cluster

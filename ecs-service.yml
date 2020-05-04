@@ -1,0 +1,218 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: ECS Fargate Create
+
+Parameters:
+  PJPrefix:
+    Type: String
+    Default: "playground"
+
+  ServiceName:
+    Type: String
+    MinLength: 3
+    MaxLength: 10
+    AllowedPattern: '[a-z][a-z0-9\-]*'
+    Default: server
+
+  VPCID:
+    Description: target vpc id
+    Type: AWS::EC2::VPC::Id
+
+  PublicSubnetIDs:
+    Description: public subnet ids
+    Type: List<AWS::EC2::Subnet::Id>
+
+  PrivateSubnetIDs:
+    Description: private subnet ids
+    Type: List<AWS::EC2::Subnet::Id>
+
+  ECSClusterName:
+    Description: ecs cluster name
+    Type: String
+    Default: playground
+
+  ContainerImageName:
+    Description: application container image name
+    Type: String
+    Default: httpd
+
+Resources:
+  # ------------------------------------------------------------#
+  #  ALB
+  # ------------------------------------------------------------#
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub ${PJPrefix}-${ServiceName}-lb
+      GroupDescription: !Sub ${PJPrefix}-${ServiceName}-lb
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      VpcId: !Ref VPCID
+      Tags:
+        - Key: Name
+          Value: !Sub ${PJPrefix}-${ServiceName}-lb
+
+  ALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub ${PJPrefix}-${ServiceName}
+      Scheme: internet-facing
+      LoadBalancerAttributes: []
+      SecurityGroups:
+        - !Ref ALBSecurityGroup
+      Subnets: !Ref PublicSubnetIDs
+      Tags:
+        - Key: Name
+          Value: !Sub ${PJPrefix}-${ServiceName}
+
+  ALBTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref VPCID
+      Name: !Sub ${PJPrefix}-${ServiceName}
+      Protocol: HTTP
+      Port: 80
+      TargetType: ip
+      HealthCheckPath: /
+      Tags:
+        - Key: Name
+          Value: !Sub ${PJPrefix}-${ServiceName}
+
+  ALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - TargetGroupArn: !Ref ALBTargetGroup
+          Type: forward
+      LoadBalancerArn: !Ref ALB
+      Port: 80
+      Protocol: HTTP
+
+  # ------------------------------------------------------------#
+  #  ECS
+  # ------------------------------------------------------------#
+  ECSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub ${PJPrefix}-${ServiceName}-ecs
+      GroupDescription: !Sub ${PJPrefix}-${ServiceName}-ecs
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: !Ref ALBSecurityGroup
+      VpcId: !Ref VPCID
+      Tags:
+        - Key: Name
+          Value: !Sub ${PJPrefix}-${ServiceName}-ecs
+
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${PJPrefix}-${ServiceName}-ecs-task-execution-role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+        - arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess
+        - arn:aws:iam::aws:policy/AWSKeyManagementServicePowerUser
+
+  ECSTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${PJPrefix}-${ServiceName}-ecs-task-role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+
+  ECSLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /ecs/${PJPrefix}-${ServiceName}
+
+  ECSTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub ${PJPrefix}-${ServiceName}
+      Cpu: 256
+      Memory: 512
+      ExecutionRoleArn: !Ref ECSTaskExecutionRole
+      TaskRoleArn: !Ref ECSTaskRole
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ContainerDefinitions:
+        - Name: !Sub ${PJPrefix}-${ServiceName}
+          Image: !Sub ${ContainerImageName}
+          Cpu: "10"
+          Memory: "500"
+          Essential: true
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref ECSLogGroup
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ecs
+          PortMappings:
+            - ContainerPort: 80
+              HostPort: 80
+              Protocol: tcp
+          Secrets:
+            - Name: DOTENV_BODY
+              ValueFrom: !Sub /${PJPrefix}/${ServiceName}/dotenv
+      Tags:
+        - Key: Name
+          Value: !Sub ${PJPrefix}-${ServiceName}
+
+  ECSService:
+    Type: AWS::ECS::Service
+    DependsOn: ALBListener
+    Properties:
+      ServiceName: !Sub ${PJPrefix}-${ServiceName}
+      Cluster: !Ref ECSClusterName
+      DesiredCount: 1
+      LaunchType: FARGATE
+      LoadBalancers:
+        - TargetGroupArn: !Ref ALBTargetGroup
+          ContainerPort: 80
+          ContainerName: !Sub ${PJPrefix}-${ServiceName}
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - !Ref ECSSecurityGroup
+          Subnets: !Ref PrivateSubnetIDs
+      TaskDefinition: !Ref ECSTaskDefinition
+      Tags:
+        - Key: Name
+          Value: !Sub ${PJPrefix}-${ServiceName}
+
+Outputs:
+  ALB:
+    Value: !Ref ALB
+    Export:
+      Name: !Sub "${PJPrefix}-${ServiceName}-alb"
+
+  ALBTargetGroup:
+    Value: !Ref ALBTargetGroup
+    Export:
+      Name: !Sub "${PJPrefix}-${ServiceName}-alb-target-group"
+  ECSService:
+    Value: !Ref ECSService
+    Export:
+      Name: !Sub "${PJPrefix}-${ServiceName}-ecs-service"
