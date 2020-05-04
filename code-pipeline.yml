@@ -44,6 +44,20 @@ Parameters:
 
 Resources:
   # ------------------------------------------------------------#
+  #  S3 Bucket
+  # ------------------------------------------------------------#
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+    BucketName: !Sub ${PJPrefix}-${ServiceName}-artifact
+    AccessControl: Private
+    PublicAccessBlockConfiguration:
+    BlockPublicAcls: True
+    BlockPublicPolicy: True
+    IgnorePublicAcls: True
+    RestrictPublicBuckets: True
+
+  # ------------------------------------------------------------#
   #  code pipeline
   # ------------------------------------------------------------#
   PipelineExecutionRole:
@@ -113,7 +127,7 @@ Resources:
                 Branch: !Ref BuildTargetBranch
                 OAuthToken: !Ref GitHubOAuthToken
                 Owner: !Ref GitHubRepoOwner
-                Repo: !Ref GitHubRepoNames
+                Repo: !Ref GitHubRepoName
                 PollForSourceChanges: "true"
               OutputArtifacts:
                 - Name: SourceArtifact
