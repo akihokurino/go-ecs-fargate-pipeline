@@ -14,7 +14,7 @@ func main() {
 	loadEnv()
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello, %s", os.Getenv("MESSAGE"))
+		fmt.Fprintf(w, "Hello World, %s %s", os.Getenv("MESSAGE"), os.Getenv("MESSAGE2"))
 	})
 
 	log.Println("running http server port 80")
