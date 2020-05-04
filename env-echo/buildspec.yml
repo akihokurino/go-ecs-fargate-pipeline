@@ -25,6 +25,7 @@ phases:
       - echo Pushing the docker image...
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
+      # nameの値は実際のECS TaskDefinitionのContainerDefinitionsのNameに合わせる
       - echo "[{\"name\":\"playground-env-echo\",\"imageUri\":\"${REPOSITORY_URI}:${IMAGE_TAG}\"}]" > imagedefinitions.json
 artifacts:
   files: imagedefinitions.json
