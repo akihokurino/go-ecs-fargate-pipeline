@@ -11,7 +11,7 @@ Parameters:
     MinLength: 3
     MaxLength: 10
     AllowedPattern: '[a-z][a-z0-9\-]*'
-    Default: server
+    Default: api
 
   VPCID:
     Description: target vpc id

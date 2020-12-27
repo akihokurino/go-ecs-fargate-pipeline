@@ -1,11 +1,11 @@
 {
-  "family": "env-echo-server",
-  "executionRoleArn": "arn:aws:iam::326914400610:role/env-echo-server-ecs-task-execution-role",
-  "taskRoleArn": "arn:aws:iam::326914400610:role/env-echo-server-ecs-task-role",
+  "family": "env-echo-api",
+  "executionRoleArn": "arn:aws:iam::326914400610:role/env-echo-api-ecs-task-execution-role",
+  "taskRoleArn": "arn:aws:iam::326914400610:role/env-echo-api-ecs-task-role",
   "networkMode": "awsvpc",
   "containerDefinitions": [
     {
-      "name": "env-echo-server",
+      "name": "env-echo-api",
       "image": "326914400610.dkr.ecr.ap-northeast-1.amazonaws.com/env-echo:${VER}",
       "portMappings": [
         {
@@ -18,7 +18,7 @@
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/env-echo-server",
+          "awslogs-group": "/ecs/env-echo-api",
           "awslogs-region": "ap-northeast-1",
           "awslogs-stream-prefix": "ecs"
         }

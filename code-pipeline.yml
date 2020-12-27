@@ -4,14 +4,14 @@ Description: create code pipeline
 Parameters:
   PJPrefix:
     Type: String
-    Default: "playground"
+    Default: env-echo
 
   ServiceName:
     Type: String
     MinLength: 3
     MaxLength: 10
     AllowedPattern: '[a-z][a-z0-9\-]*'
-    Default: server
+    Default: api
 
   BuildTargetBranch:
     Description: build target (trigger) branch name
