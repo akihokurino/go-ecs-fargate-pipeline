@@ -4,7 +4,7 @@ Description: ecs cluster
 Parameters:
   PJPrefix:
     Type: String
-    Default: "playground"
+    Default: env-echo
 
 Resources:
   # ------------------------------------------------------------#

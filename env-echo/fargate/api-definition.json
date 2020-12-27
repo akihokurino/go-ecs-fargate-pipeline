@@ -1,0 +1,44 @@
+{
+  "family": "env-echo-server",
+  "executionRoleArn": "arn:aws:iam::326914400610:role/env-echo-server-ecs-task-execution-role",
+  "taskRoleArn": "arn:aws:iam::326914400610:role/env-echo-server-ecs-task-role",
+  "networkMode": "awsvpc",
+  "containerDefinitions": [
+    {
+      "name": "env-echo-server",
+      "image": "326914400610.dkr.ecr.ap-northeast-1.amazonaws.com/env-echo:${VER}",
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "hostPort": 80,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true,
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/env-echo-server",
+          "awslogs-region": "ap-northeast-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "secrets": [
+        {
+          "name": "DOTENV_BODY",
+          "valueFrom": "/env-echo/dotenv"
+        }
+      ],
+      "command": [
+        "sh",
+        "-c",
+        "go run main.go api"
+      ]
+    }
+  ],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "256",
+  "memory": "512"
+}

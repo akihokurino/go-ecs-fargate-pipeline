@@ -8,17 +8,45 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/spf13/cobra"
 )
 
 func main() {
 	loadEnv()
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello World, %s %s", os.Getenv("MESSAGE"), os.Getenv("MESSAGE2"))
-	})
+	api := &cobra.Command{
+		Use:   "api",
+		Short: "",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+				fmt.Fprintf(w, "Hello World, %s", os.Getenv("MESSAGE"))
+			})
 
-	log.Println("running http server port 80")
-	http.ListenAndServe(":80", nil)
+			log.Println("running http server port 80")
+			http.ListenAndServe(":80", nil)
+
+			return nil
+		},
+	}
+
+	batch := &cobra.Command{
+		Use:   "batch",
+		Short: "",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			fmt.Printf("Hello World, %s", os.Getenv("MESSAGE"))
+			return nil
+		},
+	}
+
+	cmd := &cobra.Command{
+		Use:   "enc-echo",
+		Short: "",
+	}
+
+	cmd.AddCommand(api, batch)
+	if err := cmd.Execute(); err != nil {
+		os.Exit(1)
+	}
 }
 
 func loadEnv() error {

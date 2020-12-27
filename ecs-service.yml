@@ -4,7 +4,7 @@ Description: ECS Fargate Create
 Parameters:
   PJPrefix:
     Type: String
-    Default: "playground"
+    Default: env-echo
 
   ServiceName:
     Type: String
@@ -28,7 +28,7 @@ Parameters:
   ECSClusterName:
     Description: ecs cluster name
     Type: String
-    Default: playground
+    Default: env-echo
 
   ContainerImageName:
     Description: application container image name
@@ -95,7 +95,7 @@ Resources:
       Protocol: HTTP
 
   # ------------------------------------------------------------#
-  #  ECS
+  #  ECS（API）
   # ------------------------------------------------------------#
   ECSSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -162,6 +162,7 @@ Resources:
           Cpu: "10"
           Memory: "500"
           Essential: true
+          Command: ["sh", "-c", "go run main.go api"]
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -174,7 +175,7 @@ Resources:
               Protocol: tcp
           Secrets:
             - Name: DOTENV_BODY
-              ValueFrom: !Sub /${PJPrefix}/${ServiceName}/dotenv
+              ValueFrom: !Sub /${PJPrefix}/dotenv
       Tags:
         - Key: Name
           Value: !Sub ${PJPrefix}-${ServiceName}
@@ -202,17 +203,4 @@ Resources:
         - Key: Name
           Value: !Sub ${PJPrefix}-${ServiceName}
 
-Outputs:
-  ALB:
-    Value: !Ref ALB
-    Export:
-      Name: !Sub "${PJPrefix}-${ServiceName}-alb"
-
-  ALBTargetGroup:
-    Value: !Ref ALBTargetGroup
-    Export:
-      Name: !Sub "${PJPrefix}-${ServiceName}-alb-target-group"
-  ECSService:
-    Value: !Ref ECSService
-    Export:
-      Name: !Sub "${PJPrefix}-${ServiceName}-ecs-service"
+Outputs: {}
