@@ -2,16 +2,9 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: create code pipeline
 
 Parameters:
-  PJPrefix:
+  ProjectName:
     Type: String
     Default: env-echo
-
-  ServiceName:
-    Type: String
-    MinLength: 3
-    MaxLength: 10
-    AllowedPattern: '[a-z][a-z0-9\-]*'
-    Default: api
 
   BuildTargetBranch:
     Description: build target (trigger) branch name
@@ -45,7 +38,7 @@ Resources:
   S3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub ${PJPrefix}-${ServiceName}-artifact
+      BucketName: !Sub ${ProjectName}-artifact
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: True
@@ -59,7 +52,7 @@ Resources:
   PipelineExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub ${PJPrefix}-${ServiceName}-pipeline-execution-role
+      RoleName: !Sub ${ProjectName}-pipeline-execution-role
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -105,8 +98,8 @@ Resources:
     Properties:
       ArtifactStore:
         Type: S3
-        Location: !Sub ${PJPrefix}-${ServiceName}-artifact
-      Name: !Sub ${PJPrefix}-${ServiceName}-${BuildTargetBranch}
+        Location: !Sub ${ProjectName}-artifact
+      Name: !Sub ${ProjectName}-${BuildTargetBranch}
       RestartExecutionOnUpdate: false
       RoleArn: !GetAtt PipelineExecutionRole.Arn
       Stages:
@@ -152,8 +145,8 @@ Resources:
                 Version: 1
               RunOrder: 1
               Configuration:
-                ClusterName: !Sub ${PJPrefix}
-                ServiceName: !Sub ${PJPrefix}-${ServiceName}
+                ClusterName: !Sub ${ProjectName}
+                ServiceName: !Sub ${ProjectName}-api
                 # buildspec.ymlで指定しているartifactsのfile名と同じにする
                 FileName: imagedefinitions.json
               InputArtifacts:
@@ -165,7 +158,7 @@ Resources:
   BuildExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub ${PJPrefix}-${ServiceName}-build-execution-role
+      RoleName: !Sub ${ProjectName}-build-execution-role
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -185,8 +178,8 @@ Resources:
                   - "logs:CreateLogStream"
                   - "logs:PutLogEvents"
                 Resource:
-                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${PJPrefix}-${ServiceName}
-                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${PJPrefix}-${ServiceName}:*
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}:*
                 Effect: Allow
               - Action:
                   - "s3:PutObject"
@@ -195,7 +188,7 @@ Resources:
                   - "s3:GetBucketAcl"
                   - "s3:GetBucketLocation"
                 Resource:
-                  - !Sub arn:aws:s3:::${PJPrefix}-${ServiceName}-artifact*
+                  - !Sub arn:aws:s3:::${ProjectName}-artifact*
                 Effect: Allow
 
   BuildProject:
@@ -217,12 +210,10 @@ Resources:
             Value: !Ref AWS::Region
           - Name: AWS_ACCOUNT_ID
             Value: !Ref AWS::AccountId
-          - Name: CONTAINER_NAME
-            Value: !Sub ${PJPrefix}-${ServiceName}
-          - Name: SERVICE_NAME
-            Value: !Sub ${ServiceName}
+          - Name: PROJECT_NAME
+            Value: !Sub ${ProjectName}
         PrivilegedMode: true
-      Name: !Sub ${PJPrefix}-${ServiceName}
+      Name: !Sub ${ProjectName}
       ServiceRole: !GetAtt BuildExecutionRole.Arn
       Source:
         Type: CODEPIPELINE
