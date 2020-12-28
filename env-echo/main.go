@@ -19,7 +19,7 @@ func main() {
 		Short: "",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-				fmt.Fprintf(w, "Hello World, %s", os.Getenv("MESSAGE"))
+				fmt.Fprintf(w, "Hello World CICD, %s", os.Getenv("MESSAGE"))
 			})
 
 			log.Println("running http server port 80")
@@ -33,7 +33,7 @@ func main() {
 		Use:   "batch",
 		Short: "",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Printf("Hello World, %s", os.Getenv("MESSAGE"))
+			fmt.Printf("Hello World CICD, %s", os.Getenv("MESSAGE"))
 			return nil
 		},
 	}

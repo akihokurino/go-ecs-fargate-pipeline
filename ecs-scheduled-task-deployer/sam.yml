@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: ecs-scheduled-task-deployer
+
+Resources:
+  Function:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: index.handler
+      Runtime: nodejs12.x
+      Timeout: 60
+      MemorySize: 128
+      Policies:
+        - CodePipelineLambdaExecutionPolicy: {}
+        - Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action:
+                - ecs:DescribeTaskDefinition
+                - ecs:RegisterTaskDefinition
+                - events:ListTargetsByRule
+                - events:PutTargets
+                - iam:PassRole
+              Resource: "*"

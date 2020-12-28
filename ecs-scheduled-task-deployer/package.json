@@ -1,0 +1,18 @@
+{
+  "name": "ecs-scheduled-task-deployer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "package": "sam package --profile me --template-file sam.yml --output-template-file packaged.yml --s3-bucket env-echo-artifact",
+    "deploy": "sam deploy --profile me --template-file packaged.yml --stack-name ecs-scheduled-task-deployer --capabilities CAPABILITY_IAM"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.639.0",
+    "node-zip": "^1.1.1"
+  },
+  "devDependencies": {}
+}

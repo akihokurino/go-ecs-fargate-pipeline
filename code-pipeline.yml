@@ -14,7 +14,7 @@ Parameters:
   BuildSpecPath:
     Description: buildspec file path in repository
     Type: String
-    Default: buildspec.yml
+    Default: env-echo/buildspec.yml
 
   GitHubOAuthToken:
     Description: github oauth token
@@ -30,6 +30,11 @@ Parameters:
     Description: github repository name
     Type: String
     Default: aws-ecs-sample
+
+  ScheduledTaskDeployFunctionName:
+    Description: scheduled task deploy function name
+    Type: String
+    Default: ecs-scheduled-task-deployer-Function-LO3H2M6CRY2P
 
 Resources:
   # ------------------------------------------------------------#
@@ -137,7 +142,7 @@ Resources:
                 - Name: BuildArtifact
         - Name: Deploy
           Actions:
-            - Name: Deploy
+            - Name: Deploy-API
               ActionTypeId:
                 Category: Deploy
                 Owner: AWS
@@ -151,6 +156,19 @@ Resources:
                 FileName: imagedefinitions.json
               InputArtifacts:
                 - Name: BuildArtifact
+            - Name: Deploy-Batch-Hello
+              ActionTypeId:
+                Category: Invoke
+                Owner: AWS
+                Provider: Lambda
+                Version: "1"
+              RunOrder: 1
+              Configuration:
+                FunctionName: !Ref ScheduledTaskDeployFunctionName
+                UserParameters: !Sub ${ProjectName}-batch-hello
+              InputArtifacts:
+                - Name: BuildArtifact
+              OutputArtifacts: []
 
   # ------------------------------------------------------------#
   #  code build
