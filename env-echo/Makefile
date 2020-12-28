@@ -7,3 +7,7 @@ deploy-batch:
 
 deploy-api:
 	deploy-api.sh
+
+clean-images:
+	docker image prune
+	docker rmi -f `docker images | grep "local-" | awk '{print $3}'`

@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: ecs cluster
 
 Parameters:
-  PJPrefix:
+  ProjectName:
     Type: String
     Default: env-echo
 
@@ -13,10 +13,6 @@ Resources:
   ECSCluster:
     Type: AWS::ECS::Cluster
     Properties:
-      ClusterName: !Sub ${PJPrefix}
+      ClusterName: !Sub ${ProjectName}
 
-Outputs:
-  ECSClusterName:
-    Value: !Ref ECSCluster
-    Export:
-      Name: !Sub ${PJPrefix}-ecs-cluster
+Outputs: {}

@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: VPC and Subnet Create
 
 Parameters:
-  PJPrefix:
+  ProjectName:
     Type: String
     Default: "playground"
 
@@ -39,7 +39,7 @@ Resources:
       InstanceTenancy: default
       Tags:
         - Key: Name
-          Value: !Sub "${PJPrefix}-vpc"
+          Value: !Sub "${ProjectName}-vpc"
 
   # ------------------------------------------------------------#
   #  InternetGateway
@@ -49,7 +49,7 @@ Resources:
     Properties:
       Tags:
         - Key: Name
-          Value: !Sub "${PJPrefix}-igw"
+          Value: !Sub "${ProjectName}-igw"
 
   InternetGatewayAttachment:
     Type: "AWS::EC2::VPCGatewayAttachment"
@@ -66,7 +66,7 @@ Resources:
       Domain: vpc
       Tags:
         - Key: Name
-          Value: !Sub ${PJPrefix}
+          Value: !Sub ${ProjectName}
 
   NAT:
     Type: AWS::EC2::NatGateway
@@ -75,7 +75,7 @@ Resources:
       SubnetId: !Ref PublicSubnetA
       Tags:
         - Key: Name
-          Value: !Sub ${PJPrefix}
+          Value: !Sub ${ProjectName}
 
   # ------------------------------------------------------------#
   #  PublicSubnet
@@ -88,7 +88,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub "${PJPrefix}-public-subnet-a"
+          Value: !Sub "${ProjectName}-public-subnet-a"
 
   PublicSubnetC:
     Type: "AWS::EC2::Subnet"
@@ -98,7 +98,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub "${PJPrefix}-public-subnet-c"
+          Value: !Sub "${ProjectName}-public-subnet-c"
 
   # ------------------------------------------------------------#
   #  PrivateSubnet
@@ -111,7 +111,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub "${PJPrefix}-private-subnet-a"
+          Value: !Sub "${ProjectName}-private-subnet-a"
 
   PrivateSubnetC:
     Type: "AWS::EC2::Subnet"
@@ -121,7 +121,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub "${PJPrefix}-private-subnet-c"
+          Value: !Sub "${ProjectName}-private-subnet-c"
 
   # ------------------------------------------------------------#
   #  RouteTable
@@ -132,7 +132,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub "${PJPrefix}-public-route-a"
+          Value: !Sub "${ProjectName}-public-route-a"
 
   PublicRouteTableC:
     Type: "AWS::EC2::RouteTable"
@@ -140,7 +140,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub "${PJPrefix}-public-route-c"
+          Value: !Sub "${ProjectName}-public-route-c"
 
   PrivateRouteTableA:
     Type: "AWS::EC2::RouteTable"
@@ -148,7 +148,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub "${PJPrefix}-private-route-a"
+          Value: !Sub "${ProjectName}-private-route-a"
 
   PrivateRouteTableC:
     Type: "AWS::EC2::RouteTable"
@@ -156,7 +156,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub "${PJPrefix}-private-route-c"
+          Value: !Sub "${ProjectName}-private-route-c"
 
   # ------------------------------------------------------------#
   # Routing
@@ -216,73 +216,4 @@ Resources:
       SubnetId: !Ref PrivateSubnetC
       RouteTableId: !Ref PrivateRouteTableC
 
-Outputs:
-  VPC:
-    Value: !Ref VPC
-    Export:
-      Name: !Sub "${PJPrefix}-vpc"
-
-  VPCCIDR:
-    Value: !Ref VPCCIDR
-    Export:
-      Name: !Sub "${PJPrefix}-vpc-cidr"
-
-  PublicSubnetA:
-    Value: !Ref PublicSubnetA
-    Export:
-      Name: !Sub "${PJPrefix}-public-subnet-a"
-
-  PublicSubnetACIDR:
-    Value: !Ref PublicSubnetACIDR
-    Export:
-      Name: !Sub "${PJPrefix}-public-subnet-a-cidr"
-
-  PublicSubnetC:
-    Value: !Ref PublicSubnetC
-    Export:
-      Name: !Sub "${PJPrefix}-public-subnet-c"
-
-  PublicSubnetCCIDR:
-    Value: !Ref PublicSubnetCCIDR
-    Export:
-      Name: !Sub "${PJPrefix}-public-subnet-c-cidr"
-
-  PrivateSubnetA:
-    Value: !Ref PrivateSubnetA
-    Export:
-      Name: !Sub "${PJPrefix}-private-subnet-a"
-
-  PrivateSubnetACIDR:
-    Value: !Ref PrivateSubnetACIDR
-    Export:
-      Name: !Sub "${PJPrefix}-private-subnet-a-cidr"
-
-  PrivateSubnetC:
-    Value: !Ref PrivateSubnetC
-    Export:
-      Name: !Sub "${PJPrefix}-private-subnet-c"
-
-  PrivateSubnetCCIDR:
-    Value: !Ref PrivateSubnetCCIDR
-    Export:
-      Name: !Sub "${PJPrefix}-private-subnet-c-cidr"
-
-  PublicRouteTableA:
-    Value: !Ref PublicRouteTableA
-    Export:
-      Name: !Sub "${PJPrefix}-public-route-a"
-
-  PublicRouteTableC:
-    Value: !Ref PublicRouteTableC
-    Export:
-      Name: !Sub "${PJPrefix}-public-route-c"
-
-  PrivateRouteTableA:
-    Value: !Ref PrivateRouteTableA
-    Export:
-      Name: !Sub "${PJPrefix}-private-route-a"
-
-  PrivateRouteTableC:
-    Value: !Ref PrivateRouteTableC
-    Export:
-      Name: !Sub "${PJPrefix}-private-route-c"
+Outputs: {}

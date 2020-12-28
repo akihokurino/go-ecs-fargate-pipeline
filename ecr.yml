@@ -2,9 +2,9 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: Create ECR
 
 Parameters:
-  RepoName:
+  ProjectName:
     Type: String
-    Default: "env-echo"
+    Default: env-echo
 
 Resources:
   # ------------------------------------------------------------#
@@ -13,4 +13,4 @@ Resources:
   ECRRepo:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Sub ${RepoName}
+      RepositoryName: !Sub ${ProjectName}

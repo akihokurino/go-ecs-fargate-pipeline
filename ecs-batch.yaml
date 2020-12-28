@@ -2,16 +2,9 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: ECS Fargate Create
 
 Parameters:
-  PJPrefix:
+  ProjectName:
     Type: String
     Default: env-echo
-
-  ServiceName:
-    Type: String
-    MinLength: 3
-    MaxLength: 10
-    AllowedPattern: '[a-z][a-z0-9\-]*'
-    Default: batch
 
   BatchName:
     Description: batch name (part of a logical or phisical identifier)
@@ -32,11 +25,6 @@ Parameters:
     Description: private subnet ids
     Type: List<AWS::EC2::Subnet::Id>
 
-  ECSClusterName:
-    Description: ecs cluster name
-    Type: String
-    Default: env-echo
-
   ContainerImageName:
     Description: application container image name
     Type: String
@@ -54,17 +42,17 @@ Resources:
   ECSSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: !Sub ${PJPrefix}-${ServiceName}-${BatchName}-ecs
-      GroupDescription: !Sub ${PJPrefix}-${ServiceName}-${BatchName}-ecs
+      GroupName: !Sub ${ProjectName}-batch-${BatchName}-ecs
+      GroupDescription: !Sub ${ProjectName}-batch-${BatchName}-ecs
       VpcId: !Ref VPCID
       Tags:
         - Key: Name
-          Value: !Sub ${PJPrefix}-${ServiceName}-${BatchName}-ecs
+          Value: !Sub ${ProjectName}-batch-${BatchName}-ecs
 
   ECSTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub ${PJPrefix}-${ServiceName}-${BatchName}-ecs-task-execution-role
+      RoleName: !Sub ${ProjectName}-batch-${BatchName}-ecs-task-execution-role
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -80,7 +68,7 @@ Resources:
   ECSTaskRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub ${PJPrefix}-${ServiceName}-${BatchName}-ecs-task-role
+      RoleName: !Sub ${ProjectName}-batch-${BatchName}-ecs-task-role
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -92,12 +80,12 @@ Resources:
   ECSLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub /ecs/${PJPrefix}-${ServiceName}-${BatchName}
+      LogGroupName: !Sub /ecs/${ProjectName}-batch-${BatchName}
 
   ECSTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      Family: !Sub ${PJPrefix}-${ServiceName}-${BatchName}
+      Family: !Sub ${ProjectName}-batch-${BatchName}
       Cpu: 256
       Memory: 512
       ExecutionRoleArn: !Ref ECSTaskExecutionRole
@@ -106,7 +94,7 @@ Resources:
       RequiresCompatibilities:
         - FARGATE
       ContainerDefinitions:
-        - Name: !Sub ${PJPrefix}-${ServiceName}
+        - Name: main
           Image: !Sub ${ContainerImageName}
           Cpu: "10"
           Memory: "500"
@@ -119,15 +107,15 @@ Resources:
               awslogs-stream-prefix: ecs
           Secrets:
             - Name: DOTENV_BODY
-              ValueFrom: !Sub /${PJPrefix}/dotenv
+              ValueFrom: !Sub /${ProjectName}/dotenv
       Tags:
         - Key: Name
-          Value: !Sub ${PJPrefix}-${ServiceName}-${BatchName}
+          Value: !Sub ${ProjectName}-batch-${BatchName}
 
   TaskScheduleEvents:
     Type: AWS::Events::Rule
     Properties:
-      Name: !Sub ${PJPrefix}-${ServiceName}-${BatchName}
+      Name: !Sub ${ProjectName}-batch-${BatchName}
       ScheduleExpression: !Ref ScheduleExpression
       State: ENABLED
       Targets:
@@ -145,6 +133,6 @@ Resources:
             #     SecurityGroups:
             #       - !Ref ECSSecurityGroup
             #     Subnets: !Ref PrivateSubnetIDs
-          Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${ECSClusterName}
+          Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${ProjectName}
 
 Outputs: {}

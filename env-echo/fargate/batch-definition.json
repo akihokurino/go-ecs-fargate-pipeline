@@ -1,17 +1,17 @@
 {
-  "family": "env-echo-batch-test",
-  "executionRoleArn": "arn:aws:iam::326914400610:role/env-echo-batch-test-ecs-task-execution-role",
-  "taskRoleArn": "arn:aws:iam::326914400610:role/env-echo-batch-test-ecs-task-role",
+  "family": "env-echo-batch-${BATCH_NAME}",
+  "executionRoleArn": "arn:aws:iam::326914400610:role/env-echo-batch-${BATCH_NAME}-ecs-task-execution-role",
+  "taskRoleArn": "arn:aws:iam::326914400610:role/env-echo-batch-${BATCH_NAME}-ecs-task-role",
   "networkMode": "awsvpc",
   "containerDefinitions": [
     {
-      "name": "env-echo-batch",
+      "name": "main",
       "image": "326914400610.dkr.ecr.ap-northeast-1.amazonaws.com/env-echo:${VER}",
       "essential": true,
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/env-echo-batch-test",
+          "awslogs-group": "/ecs/env-echo-batch-${BATCH_NAME}",
           "awslogs-region": "ap-northeast-1",
           "awslogs-stream-prefix": "ecs"
         }

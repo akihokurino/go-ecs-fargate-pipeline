@@ -36,7 +36,7 @@ Parameters:
   GitHubRepoName:
     Description: github repository name
     Type: String
-    Default: aws-playground
+    Default: aws-ecs-sample
 
 Resources:
   # ------------------------------------------------------------#

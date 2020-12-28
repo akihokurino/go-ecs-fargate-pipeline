@@ -5,7 +5,7 @@
   "networkMode": "awsvpc",
   "containerDefinitions": [
     {
-      "name": "env-echo-api",
+      "name": "main",
       "image": "326914400610.dkr.ecr.ap-northeast-1.amazonaws.com/env-echo:${VER}",
       "portMappings": [
         {
