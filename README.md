@@ -5,3 +5,5 @@
 - cobra
 - aws fargate
 - aws cloud watch event (fargate batch)
+- aws cloud formation
+- aws code pipeline
