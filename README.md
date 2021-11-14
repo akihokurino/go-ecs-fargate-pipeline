@@ -1,6 +1,4 @@
-# aws-ecs-sample
-
-## 構成
+## Specs
 - go 1.14
 - cobra
 - aws fargate
