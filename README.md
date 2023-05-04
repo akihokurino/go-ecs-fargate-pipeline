@@ -1,4 +1,4 @@
-## Specs
+## Used, Dependency
 - go 1.14
 - cobra（ https://github.com/spf13/cobra ）
 - ecs fargate
